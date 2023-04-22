@@ -47,7 +47,7 @@ int main(){
 
   /*Begin Trapezoidal Method: */
 
-  // Divide el trabajo en subintervalos y los asigna a diferentes hilos
+  // Splits work into subintervals and assigns them to different threads
   h=fabs(b-a)/n;
   #pragma omp parallel for private(x) reduction(+:sum)
   for(i=1;i<n;i++){
