@@ -7,6 +7,9 @@ especificado por el usuario.
 
 OPCIONES DE COMPILACION USADAS PARA trapezAreaSimple Y PARA omp_trapezAreaSimple
 
+Antes para entrar a guane se ejeguta el siguien comando:
+ssh guane
+
 Primero no dirigimos a la carpeta OpenMP
 
 cd "/home/class/2023_1/jcaguerreroo/OpenMP/"
