@@ -5,7 +5,7 @@ trapezAreaSimple el código implementa la regla del trapecio para aproximar la i
 de una función en un intervalo definido por el usuario, utilizando el número de subintervalos 
 especificado por el usuario.
 
-OPCIONES DE COMPILACION USADAS PARA trapezAreaSimple Y PARA omp_trapezAreaSimple
+COMPILACION USADA PARA trapezAreaSimple Y PARA omp_trapezAreaSimple en GUANE-1
 
 Antes para entrar a guane se ejeguta el siguien comando:
 ssh guane
@@ -30,4 +30,8 @@ código fuente "trapezAreaSimple.C".
 Lo mismo se hace para el archivo omp_trapezAreaSimple cambiando el nombre del archivo en los comandos:
 gcc -fopenmp omp_trapezAreaSimple.C -o omptrapecio -lm
 ./ omptrapecio
+
+COMPILACION USADA PARA trapezAreaSimple Y PARA omp_trapezAreaSimple en maquina personal
+Es bastante simple, en mi caso descargue e instale Dev-Cpp 5.11 TDM-GCC 4.9.2, desde este compilador
+abri el archivo omp_trapezAreaSimple.C y ejecute el código
 ----------///----------///----------///----------///----------///----------///----------///----------///

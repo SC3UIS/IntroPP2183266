@@ -8,7 +8,9 @@ Enter the final limit: 2
 
 The integral is: 10.843750
 
-CODIGO EN MAQUINA PERSONAL
+--------------------------------------------------------
+
+EJECUCION EN MAQUINA PERSONAL
 
 Enter the no. of sub-intervals: 4
 
@@ -18,6 +20,5 @@ Enter the final limit: 2
 
 The integral is: 10.843750
 
-
-...Program finished with exit code 0
-Press ENTER to exit console.
+Process exited after 27.29 seconds with return value 0
+Presione una tecla para continuar . . .
