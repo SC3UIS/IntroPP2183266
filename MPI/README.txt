@@ -14,6 +14,7 @@ user    0m0.000s
 sys     0m0.002s
 
 -----------------//-----------------//-----------------//-----------------//-----------------//-----------------//-----------------//
+
 Regla del trapecio para aproximar la integral  de una función en un intervalo definido por el usuario, utilizando el número de 
 subintervalos especificado por el usuario (OMP):
 
