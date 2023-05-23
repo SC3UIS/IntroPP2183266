@@ -1,0 +1,46 @@
+OMP
+
+Enter the no. of sub-intervals: 5
+
+Enter the initial limit: 1
+
+Enter the final limit: 4
+
+The integral is: 21.180000
+
+real     0m4.009s
+user     0m0.002s
+sys      0m0.007s
+
+-------------------------///-------------------------///-------------------------///
+
+MPI
+
+Enter the no. of sub-intervals: 5
+
+Enter the initial limit: 1
+
+Enter the final limit: 4
+
+The integral is: 21.180000
+
+real     0m5.432s
+user     0m55.735s
+sys      0m3.380s
+
+-------------------------///-------------------------///-------------------------///
+
+Original
+
+Enter the no. of sub-intervals: 5
+
+Enter the initial limit: 1
+
+Enter the final limit: 4
+
+The integral is: 21.180000
+
+real     0m11.166s
+user     0m0.000s
+sys      0m0.002s
+
