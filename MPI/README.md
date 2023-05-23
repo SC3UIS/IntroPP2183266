@@ -27,4 +27,4 @@ Para obtener la medida de tiempo de ejecución del código MPI, puedes utilizar 
 # Comparación
 - La implementación más rápida es OMP, con un tiempo de ejecución real de 4,009 segundos.
 - La segunda implementación con un tiempo real de ejecución de 5,432 segundos es la de MPI.
-- La tercera y ultima es el codigo original con un tiempo real de ejecución de 11,166 segundos.
+- La tercera y ultima es el código original con un tiempo real de ejecución de 11,166 segundos.
