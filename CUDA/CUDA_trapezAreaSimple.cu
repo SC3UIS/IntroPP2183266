@@ -13,11 +13,12 @@ __global__ void trapezoidalRule(double a, double b, double h, int n, double* res
     }
 }
 
-// Function to calculate the execution time in milliseconds
-double getExecutionTime(cudaEvent_t start, cudaEvent_t end) {
-    float milliseconds = 0;
-    cudaEventElapsedTime(&milliseconds, start, end);
-    return (double)milliseconds;
+double get_wall_time() {
+    struct timeval time;
+    if (gettimeofday(&time, NULL)) {
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * 0.000001;
 }
 
 int main() {
@@ -25,7 +26,7 @@ int main() {
     double a, b, h, integral;
     double *result;
     double *d_result;
-    cudaEvent_t start, end;
+    struct timeval start, end;
 
     printf("\nEnter the no. of sub-intervals: ");
     scanf("%d", &n);
@@ -42,13 +43,13 @@ int main() {
     // Allocate memory for the result array on the device
     cudaMalloc((void**)&d_result, n * sizeof(double));
 
-    // Start timer
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    cudaEventRecord(start);
+    double start_time = get_wall_time(); // Inicio del tiempo de ejecución
 
     // Launch the kernel with one thread per interval
     trapezoidalRule<<<(n + 255) / 256, 256>>>(a, b, h, n, d_result);
+
+    double end_time = get_wall_time(); // Fin del tiempo de ejecución
+    double execution_time = end_time - start_time;
 
     // Copy the result array from the device to the host
     cudaMemcpy(result, d_result, n * sizeof(double), cudaMemcpyDeviceToHost);
@@ -60,27 +61,20 @@ int main() {
     }
     integral -= (result[0] + result[n - 1]) / 2.0;
 
-    // Stop timer
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-
-    // Calculate execution time
-    double executionTime = getExecutionTime(start, end);
-
-    // Calculate the speedup and scalability
-    double sequentialTime = executionTime / 1000.0; // Assuming sequential execution time in seconds
-    double speedup = sequentialTime / (executionTime / 1000.0);
-    double scalability = speedup / 1.0; // Assuming 1 GPU used
-
     // Free memory on the device
     cudaFree(d_result);
 
     // Free memory on the host
     free(result);
 
-    // Print the answer, execution time, speedup, and scalability
     printf("\nThe integral is: %lf\n", integral);
-    printf("Execution Time: %.6f ms\n", executionTime);
+    printf("Execution Time: %.6f ms\n", execution_time);
+
+    // Cálculo del speedup y la escalabilidad
+    double sequential_time = (b * b * b * b - a * a * a * a) / 4; // Cálculo secuencial equivalente
+    double speedup = sequential_time / (execution_time / 1000.0);
+    double scalability = speedup / 1.0; // Suponiendo que se utiliza 1 GPU
+
     printf("Speedup: %.2f\n", speedup);
     printf("Scalability: %.2f\n", scalability);
 
