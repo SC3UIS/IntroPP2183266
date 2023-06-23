@@ -8,12 +8,23 @@ __global__ void sumNumbers(int num, int *result)
     atomicAdd(result, count);
 }
 
-double get_wall_time() {
-    struct timeval time;
-    if (gettimeofday(&time, NULL)) {
-        return 0;
-    }
-    return (double)time.tv_sec + (double)time.tv_usec * 0.000001;
+double get_wall_time()
+{
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start, 0);
+
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+
+    return (double)milliseconds / 1000.0;
 }
 
 int main()
@@ -26,7 +37,7 @@ int main()
 
     double start_time = get_wall_time(); // Inicio del tiempo de ejecución
 
-    cudaMalloc((void**)&dev_result, sizeof(int));
+    cudaMalloc((void **)&dev_result, sizeof(int));
     cudaMemcpy(dev_result, &sum, sizeof(int), cudaMemcpyHostToDevice);
 
     sumNumbers<<<1, num>>>(num, dev_result);

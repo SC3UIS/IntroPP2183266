@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<math.h>
 #include<sys/time.h>
+#include<cuda_runtime.h>
 
 // Kernel function for parallel computation
 __global__ void trapezoidalRule(double a, double b, double h, int n, double* result) {
@@ -13,9 +14,10 @@ __global__ void trapezoidalRule(double a, double b, double h, int n, double* res
 }
 
 // Function to calculate the execution time in milliseconds
-double getExecutionTime(struct timeval start, struct timeval end) {
-    return (double)(end.tv_sec - start.tv_sec) * 1000.0 +
-           (double)(end.tv_usec - start.tv_usec) / 1000.0;
+double getExecutionTime(cudaEvent_t start, cudaEvent_t end) {
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, end);
+    return (double)milliseconds;
 }
 
 int main() {
@@ -23,7 +25,7 @@ int main() {
     double a, b, h, integral;
     double *result;
     double *d_result;
-    struct timeval start, end;
+    cudaEvent_t start, end;
 
     printf("\nEnter the no. of sub-intervals: ");
     scanf("%d", &n);
@@ -41,7 +43,9 @@ int main() {
     cudaMalloc((void**)&d_result, n * sizeof(double));
 
     // Start timer
-    gettimeofday(&start, NULL);
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    cudaEventRecord(start);
 
     // Launch the kernel with one thread per interval
     trapezoidalRule<<<(n + 255) / 256, 256>>>(a, b, h, n, d_result);
@@ -57,7 +61,8 @@ int main() {
     integral -= (result[0] + result[n - 1]) / 2.0;
 
     // Stop timer
-    gettimeofday(&end, NULL);
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
 
     // Calculate execution time
     double executionTime = getExecutionTime(start, end);
