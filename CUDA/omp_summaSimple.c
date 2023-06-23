@@ -1,15 +1,14 @@
-// From https://www.programiz.com/c-programming/c-for-loop 
-// Modified by C. Barrios for training purposes 2023
-// Simple Program to calculate the sum of first n natural numbers
-// Positive integers 1,2,3...n are known as natural numbers
-/*
- * Tomado de: https://github.com/carlosjaimebh/SomeExamples/blob/main/summaSimple.c
- * */
-//EXAMPLE:
-// 24 de abril de 2023 
-
 #include <stdio.h>
 #include <omp.h>
+#include <sys/time.h>
+
+double get_wall_time() {
+    struct timeval time;
+    if (gettimeofday(&time, NULL)) {
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * 0.000001;
+}
 
 int main()
 {
@@ -18,17 +17,27 @@ int main()
     printf("Enter a positive integer: ");
     scanf("%d", &num);
 
+    double start_time = get_wall_time(); // Inicio del tiempo de ejecución
+
     #pragma omp parallel for reduction(+:sum)
     for(count = 1; count <= num; ++count)
     {
         sum += count;
     }
 
+    double end_time = get_wall_time(); // Fin del tiempo de ejecución
+    double tiempo_ejecucion = end_time - start_time;
+
     printf("\nSum = %d\n", sum);
+    printf("Tiempo de ejecución: %f segundos\n", tiempo_ejecucion);
+
+    // Cálculo de la escalabilidad y el speedup
+    double tiempo_secuencial = 0.0;
+    double speedup = tiempo_secuencial / tiempo_ejecucion;
+    double escalabilidad = speedup;
+
+    printf("Speedup: %f\n", speedup);
+    printf("Escalabilidad: %f\n", escalabilidad);
 
     return 0;
 }
-/*In this code block, the pragma omp directive is used to create a team of threads and distribute the work of the for loop in parallel.
-The parallel clause indicates that the following code block will be executed in parallel. The for clause indicates that the work of the for loop should be distributed among the created threads. 
-The reduction clause indicates that the variable sum should be shared among the threads, and each thread should maintain a private copy of the variable.
-At the end of the loop, the values of all private copies are added together and stored in the variable sum/*

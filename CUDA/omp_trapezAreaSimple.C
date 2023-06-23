@@ -1,35 +1,19 @@
-/*
-  Purpose:
-
-    trapezAreaSimple is an example that implements the trapezoidal rule to approximate the integral of a function over a user-defined interval, 
-    using the user-specified number of subintervalsfor Intro PP Students.
-
-  Date and hour:
-
-    22 Apr 2023 13:13:54 PM
-
-  Licensing:
-
-    This code is distributed under the GNU LGPL license.
-
-  Modified:
-
-    22 April 2023
-
-  Author:
-  Manas Sharma 
-  OpenMP Modification:
-  22 april 2023 by Juan Guerrero, Universidad Industrial de Santander juan2183266@correo.uis.edu.co                   
-  This OpenMP Modification makes a parallelization of the original Code...  
-*/
-
 #include <stdio.h>
 #include <math.h>
 #include <omp.h>
+#include <sys/time.h>
 
 /* Define the function to be integrated here: */
 double f(double x){
   return x*x;
+}
+
+double get_wall_time() {
+    struct timeval time;
+    if (gettimeofday(&time, NULL)) {
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * 0.000001;
 }
 
 /*Program begins*/
@@ -45,6 +29,8 @@ int main(){
   printf("\nEnter the final limit: ");
   scanf("%lf",&b);
 
+  double start_time = get_wall_time(); // Inicio del tiempo de ejecución
+
   /*Begin Trapezoidal Method: */
 
   // Splits work into subintervals and assigns them to different threads
@@ -55,9 +41,21 @@ int main(){
     sum=sum+f(x);
   }
 
+  double end_time = get_wall_time(); // Fin del tiempo de ejecución
+  double tiempo_ejecucion = end_time - start_time;
+
   // Reduce the partial results to obtain the total integral
   integral=(h/2)*(f(a)+f(b)+2*sum);
 
   /*Print the answer */
   printf("\nThe integral is: %lf\n",integral);
+  printf("Tiempo de ejecución: %f segundos\n", tiempo_ejecucion);
+
+  // Cálculo de la escalabilidad y el speedup
+  double tiempo_secuencial = 0.0;
+  double speedup = tiempo_secuencial / tiempo_ejecucion;
+  double escalabilidad = speedup;
+
+  printf("Speedup: %f\n", speedup);
+  printf("Escalabilidad: %f\n", escalabilidad);
 }

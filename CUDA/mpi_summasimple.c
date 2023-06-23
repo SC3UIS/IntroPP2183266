@@ -1,5 +1,14 @@
 #include <stdio.h>
 #include <mpi.h>
+#include <sys/time.h>
+
+double get_wall_time() {
+    struct timeval time;
+    if (gettimeofday(&time, NULL)) {
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * 0.000001;
+}
 
 int main(int argc, char** argv)
 {
@@ -15,6 +24,8 @@ int main(int argc, char** argv)
         printf("Enter a positive integer: ");
         scanf("%d", &num);
     }
+
+    double start_time = get_wall_time(); // Inicio del tiempo de ejecución
 
     MPI_Bcast(&num, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -36,19 +47,25 @@ int main(int argc, char** argv)
 
     if (rank == 0)
     {
-        printf("\nSum = %d\n", totalSum);
-    }
+        double end_time = get_wall_time(); // Fin del tiempo de ejecución
+        double tiempo_ejecucion = end_time - start_time;
 
+        printf("\nSum = %d\n", totalSum);
+        printf("Tiempo de ejecución: %f segundos\n", tiempo_ejecucion);
+
+        // Cálculo de la escalabilidad y el speedup
+        double tiempo_secuencial = 0.0;
+        MPI_Reduce(&tiempo_ejecucion, &tiempo_secuencial, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+
+        int num_procesos = size;
+        double speedup = tiempo_secuencial / tiempo_ejecucion;
+        double escalabilidad = speedup / num_procesos;
+
+        printf("Speedup: %f\n", speedup);
+        printf("Escalabilidad: %f\n", escalabilidad);
+    }
 
     MPI_Finalize();
 
     return 0;
 }
-
-/*In this version, we have added the necessary MPI calls to initialize the MPI environment, obtain the rank and size of the communicator, and synchronize the value of num across all processes using MPI_Bcast.
-
-Then, we calculate the range of values to sum based on the process rank and the total size. Each process adds up its assigned range.
-
-Finally, we use MPI_Reduce to sum all the partial sum values and obtain the final result in process 0. The final result is printed only in process 0 after the reduction.
-
-Please note that to compile and execute this code, you need to have a compatible MPI library installed and use the appropriate compilation commands.
