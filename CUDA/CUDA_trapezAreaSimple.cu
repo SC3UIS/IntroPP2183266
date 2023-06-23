@@ -1,82 +1,95 @@
-#include<stdio.h>
-#include<math.h>
-#include<sys/time.h>
-#include<cuda_runtime.h>
+#include <stdio.h>
+#include <math.h>
+#include <cuda_runtime.h>
+#include <sys/time.h>
 
-// Kernel function for parallel computation
-__global__ void trapezoidalRule(double a, double b, double h, int n, double* result) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (idx < n) {
-        double x = a + idx * h;
-        result[idx] = h * (x * x);
-    }
+__host__ __device__ double f(double x){
+  return x*x;
 }
 
-double get_wall_time() {
-    struct timeval time;
-    if (gettimeofday(&time, NULL)) {
-        return 0;
-    }
-    return (double)time.tv_sec + (double)time.tv_usec * 0.000001;
+__device__ double atomicAddDouble(double* address, double val) {
+  unsigned long long int* address_as_ull = (unsigned long long int*)address;
+  unsigned long long int old = *address_as_ull, assumed;
+  do {
+    assumed = old;
+    old = atomicCAS(address_as_ull, assumed,
+                    __double_as_longlong(val + __longlong_as_double(assumed)));
+  } while (assumed != old);
+  return __longlong_as_double(old);
 }
 
-int main() {
-    int n, i;
-    double a, b, h, integral;
-    double *result;
-    double *d_result;
-    struct timeval start, end;
+__global__ void integrate(double a, double b, int n, double h, double* result) {
+  int i;
+  double x, sum = 0.0;
+  int idx = threadIdx.x + blockIdx.x * blockDim.x;
+  int stride = blockDim.x * gridDim.x;
+  
+  for (i = idx + 1; i < n; i += stride) {
+    x = a + i * h;
+    sum += f(x);
+  }
+  
+  sum *= 2.0;
+  
+  atomicAddDouble(result, sum);
+}
 
-    printf("\nEnter the no. of sub-intervals: ");
-    scanf("%d", &n);
-    printf("\nEnter the initial limit: ");
-    scanf("%lf", &a);
-    printf("\nEnter the final limit: ");
-    scanf("%lf", &b);
+double getCurrentTime() {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return tv.tv_sec + tv.tv_usec * 1e-6;
+}
 
-    h = fabs(b - a) / n;
-
-    // Allocate memory for the result array on the host
-    result = (double*)malloc(n * sizeof(double));
-
-    // Allocate memory for the result array on the device
-    cudaMalloc((void**)&d_result, n * sizeof(double));
-
-    double start_time = get_wall_time(); // Inicio del tiempo de ejecución
-
-    // Launch the kernel with one thread per interval
-    trapezoidalRule<<<(n + 255) / 256, 256>>>(a, b, h, n, d_result);
-
-    double end_time = get_wall_time(); // Fin del tiempo de ejecución
-    double execution_time = end_time - start_time;
-
-    // Copy the result array from the device to the host
-    cudaMemcpy(result, d_result, n * sizeof(double), cudaMemcpyDeviceToHost);
-
-    // Calculate the final integral value
-    integral = 0.0;
-    for (i = 0; i < n; i++) {
-        integral += result[i];
-    }
-    integral -= (result[0] + result[n - 1]) / 2.0;
-
-    // Free memory on the device
-    cudaFree(d_result);
-
-    // Free memory on the host
-    free(result);
-
-    printf("\nThe integral is: %lf\n", integral);
-    printf("Execution Time: %.6f ms\n", execution_time);
-
-    // Cálculo del speedup y la escalabilidad
-    double sequential_time = (b * b * b * b - a * a * a * a) / 4; // Cálculo secuencial equivalente
-    double speedup = sequential_time / (execution_time / 1000.0);
-    double scalability = speedup / 1.0; // Suponiendo que se utiliza 1 GPU
-
-    printf("Speedup: %.2f\n", speedup);
-    printf("Scalability: %.2f\n", scalability);
-
-    return 0;
+int main(){
+  int n, blockSize, numBlocks;
+  double a, b, h, integral;
+  double* result;
+  double* dev_result;
+  
+  printf("\nEnter the no. of sub-intervals: ");
+  scanf("%d", &n);
+  printf("\nEnter the initial limit: ");
+  scanf("%lf", &a);
+  printf("\nEnter the final limit: ");
+  scanf("%lf", &b);
+  
+  h = fabs(b - a) / n;
+  
+  blockSize = 256; // Puedes ajustar el tamaño del bloque según tus necesidades
+  numBlocks = (n + blockSize - 1) / blockSize;
+  
+  result = (double*)malloc(sizeof(double));
+  cudaMalloc((void**)&dev_result, sizeof(double));
+  
+  *result = 0.0;
+  cudaMemcpy(dev_result, result, sizeof(double), cudaMemcpyHostToDevice);
+  
+  double start = getCurrentTime();
+  integrate<<<numBlocks, blockSize>>>(a, b, n, h, dev_result);
+  cudaDeviceSynchronize();
+  double end = getCurrentTime();
+  
+  cudaMemcpy(result, dev_result, sizeof(double), cudaMemcpyDeviceToHost);
+  
+  integral = (h / 2) * (f(a) + f(b) + *result);
+  
+  printf("\nThe integral is: %lf\n", integral);
+  
+  double elapsedTime = end - start;
+  printf("Elapsed Time: %.6f seconds\n", elapsedTime);
+  
+  // Cálculo del speedup y la escalabilidad
+  int numThreads = numBlocks * blockSize;
+  double sequentialTime = integral;
+  double parallelTime = elapsedTime;
+  double speedup = sequentialTime / parallelTime;
+  double scalability = sequentialTime / (parallelTime * numThreads);
+  
+  printf("Speedup: %.2f\n", speedup);
+  printf("Escalabilidad: %.2f\n", scalability);
+  
+  free(result);
+  cudaFree(dev_result);
+  
+  return 0;
 }
