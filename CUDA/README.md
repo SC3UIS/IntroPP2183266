@@ -9,13 +9,15 @@ En esta carpeta se encuentran los archivos `CUDA_SumaSimple.cu`, `CUDA_trapezAre
 ## EJECUCIÓN DE LOS ARCHIVOS RELACIONADOS A LA SUMA SIMPLE
 
 ### `omp_summasimple.c`
-Acá debe ir la imagen correspondiente
+![WhatsApp Image 2023-06-23 at 12 12 49 PM](https://github.com/SC3UIS/IntroPP2183266/assets/55815692/aae3a565-ecf1-44f1-b001-db894f3831bd)
 
 ### `mpi_summasimple.c`
-Acá debe ir la imagen correspondiente
+![WhatsApp Image 2023-06-23 at 12 11 39 PM](https://github.com/SC3UIS/IntroPP2183266/assets/55815692/17b558f0-41d8-4361-874b-cf434a28e04b)
+
 
 ### `CUDA_SumaSimple.cu`
-Acá debe ir la imagen correspondiente
+![WhatsApp Image 2023-06-23 at 9 04 58 PM](https://github.com/SC3UIS/IntroPP2183266/assets/55815692/712481c0-3c5a-48f9-8bad-923773624092)
+
 
 
 ### COMPARACIÓN EN ESCALABILIDAD
@@ -67,13 +69,16 @@ Teniendo en cuenta los resultaods obtenidos en la ejecución de cada archivo se 
 
 
 ### `omp_trapezAreaSimple.C`
-Acá debe ir la imagen correspondiente
+![WhatsApp Image 2023-06-23 at 12 17 39 PM](https://github.com/SC3UIS/IntroPP2183266/assets/55815692/378c6fda-24ae-42fb-90c6-1df45054c23a)
+
 
 ### `MPI_trapezAreaSimple.C`
-Acá debe ir la imagen correspondiente
+![WhatsApp Image 2023-06-23 at 12 15 38 PM](https://github.com/SC3UIS/IntroPP2183266/assets/55815692/0403de7c-08af-41d2-96dc-82ae6921667f)
+
 
 ### `CUDA_trapezAreaSimple.cu`
-Acá debe ir la imagen correspondiente
+![WhatsApp Image 2023-06-23 at 2 52 05 PM](https://github.com/SC3UIS/IntroPP2183266/assets/55815692/1212f061-b374-41ca-b643-3f0c98e29cb5)
+
 
 
 ### COMPARACIÓN EN ESCALABILIDAD
